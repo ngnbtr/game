@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ghép Đôi Đường Phố - Luật Doanh Nghiệp 2020</title>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Quicksand', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #FDFBF7 0%, #F3EDE2 100%);
+            color: #4A3B32;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px;
+            overflow-x: hidden;
+        }
+
+        /* Header phong cách cute */
+        header {
+            width: 100%;
+            max-width: 1300px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #FFFFFF;
+            padding: 16px 28px;
+            border-radius: 20px;
+            box-shadow: 0 8px 25px rgba(139, 111, 78, 0.08);
+            margin-bottom: 24px;
+            border: 2px solid #EFE6DC;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: #5C4033;
+        }
+
+        .header-title span {
+            background: #F4EBE1;
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 1.3rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            background: #689F38;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.95rem;
+            box-shadow: 0 4px 12px rgba(104, 159, 56, 0.25);
+        }
+
+        .btn:hover {
+            background: #558B2F;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(104, 159, 56, 0.35);
+        }
+
+        .btn-edit {
+            background: #D97757;
+            box-shadow: 0 4px 12px rgba(217, 119, 87, 0.25);
+        }
+        .btn-edit:hover {
+            background: #C05E3C;
+        }
+
+        /* Main Game Card */
+        .game-container {
+            width: 100%;
+            max-width: 1300px;
+            background: #FFFFFF;
+            border-radius: 24px;
+            box-shadow: 0 12px 40px rgba(139, 111, 78, 0.1);
+            padding: 30px 36px;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            border: 2px solid #EFE6DC;
+        }
+
+        .game-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px dashed #EFE6DC;
+            padding-bottom: 18px;
+        }
+
+        .banner-left h2 {
+            font-size: 1.35rem;
+            color: #4A3B32;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .banner-left p {
+            font-size: 0.95rem;
+            color: #8C7A6B;
+        }
+
+        .score-badge {
+            background: #F4EBE1;
+            padding: 10px 20px;
+            border-radius: 14px;
+            font-weight: 700;
+            color: #735342;
+            font-size: 1.05rem;
+            border: 1px solid #E5D6C7;
+        }
+
+        .columns-header {
+            display: flex;
+            justify-content: space-between;
+            padding: 0 10px;
+        }
+
+        .col-title {
+            width: 47%;
+            font-weight: 700;
+            font-size: 1.05rem;
+            color: #735342;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: #FAF5F0;
+            padding: 12px 18px;
+            border-radius: 14px;
+            border: 1px solid #EFE6DC;
+        }
+
+        /* Playing Field */
+        .field-wrapper {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            gap: 80px;
+            padding: 10px 0;
+        }
+
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .column {
+            width: 47%;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            z-index: 10;
+        }
+
+        .card {
+            background: #FFFFFF;
+            border: 2px solid #E8DFD4;
+            border-radius: 18px;
+            padding: 18px 22px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 15px rgba(139, 111, 78, 0.04);
+            min-height: 84px;
+        }
+
+        .card:hover:not(.connected):not(.disabled) {
+            border-color: #A67C52;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(166, 124, 82, 0.15);
+            background: #FDFBFA;
+        }
+
+        .card.selected {
+            border-color: #D97757;
+            background: #FDF3F0;
+            box-shadow: 0 0 0 4px rgba(217, 119, 87, 0.15);
+            transform: scale(1.01);
+        }
+
+        .card.connected {
+            border-color: #689F38;
+            background: #F1F8E9;
+            cursor: default;
+        }
+
+        .card-index {
+            width: 36px;
+            height: 36px;
+            background: #F4EBE1;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 1rem;
+            color: #735342;
+            flex-shrink: 0;
+            box-shadow: 0 2px 6px rgba(139, 111, 78, 0.1);
+        }
+
+        .card.connected .card-index {
+            background: #689F38;
+            color: white;
+        }
+
+        .card-text {
+            font-size: 1.15rem;
+            font-weight: 600;
+            color: #4A3B32;
+            line-height: 1.5;
+        }
+
+        .instruction-footer {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #8C7A6B;
+            background: #FAF5F0;
+            padding: 12px;
+            border-radius: 12px;
+            margin-top: 10px;
+            border: 1px dashed #EFE6DC;
+        }
+
+        /* Success Modal cute */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(74, 59, 50, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .modal-card {
+            background: white;
+            padding: 40px 50px;
+            border-radius: 28px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(74, 59, 50, 0.2);
+            transform: scale(0.8);
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            max-width: 500px;
+            width: 90%;
+            border: 3px solid #F4EBE1;
+        }
+
+        .modal-overlay.show .modal-card {
+            transform: scale(1);
+        }
+
+        .modal-icon {
+            font-size: 4rem;
+            margin-bottom: 14px;
+            animation: bounce 1.5s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .modal-card h3 {
+            font-size: 1.6rem;
+            color: #4A3B32;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .modal-card p {
+            color: #8C7A6B;
+            font-size: 1.05rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .modal-btn {
+            background: #689F38;
+            color: white;
+            border: none;
+            padding: 14px 35px;
+            border-radius: 16px;
+            font-weight: 700;
+            font-size: 1.05rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 6px 20px rgba(104, 159, 56, 0.35);
+        }
+
+        .modal-btn:hover {
+            background: #558B2F;
+            transform: translateY(-2px);
+        }
+
+        /* Edit Modal cute */
+        .edit-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(74, 59, 50, 0.5);
+            backdrop-filter: blur(4px);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+        .edit-modal.show {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .edit-content {
+            background: white;
+            width: 90%;
+            max-width: 850px;
+            max-height: 85vh;
+            border-radius: 24px;
+            padding: 35px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 0 20px 60px rgba(74, 59, 50, 0.2);
+            border: 3px solid #F4EBE1;
+        }
+        .edit-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid #F4EBE1;
+            padding-bottom: 14px;
+        }
+        .edit-header h3 {
+            color: #4A3B32;
+            font-weight: 700;
+        }
+        .edit-body {
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            padding-right: 5px;
+        }
+        .edit-pair {
+            background: #FAF5F0;
+            padding: 18px;
+            border-radius: 16px;
+            border: 1px solid #EFE6DC;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .edit-pair label {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #735342;
+        }
+        .edit-pair textarea {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #D9C9BC;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            resize: vertical;
+            height: 55px;
+            font-family: 'Quicksand', sans-serif;
+            background: #FFFFFF;
+        }
+        .edit-pair textarea:focus {
+            outline: none;
+            border-color: #A67C52;
+        }
+        .edit-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            border-top: 2px solid #F4EBE1;
+            padding-top: 18px;
+        }
+
+        canvas#confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 2000;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="confetti-canvas"></canvas>
+
+    <header>
+        <div class="header-title">
+            <span>✨</span> GHÉP ĐÔI ĐƯỜNG PHỐ - LUẬT DOANH NGHIỆP 2020
+        </div>
+        <div class="header-actions">
+            <button class="btn" id="bgm-toggle">🎵 Nhạc Nền: Bật</button>
+            <button class="btn btn-edit" onclick="openEditModal()">✏️ Chỉnh Sửa Câu Hỏi</button>
+        </div>
+    </header>
+
+    <div class="game-container">
+        <div class="game-banner">
+            <div class="banner-left">
+                <h2>🎯 THỬ THÁCH NỐI Ý CHÍNH & TÁC ĐỘNG KINH TẾ</h2>
+                <p>Bấm chọn 1 thẻ bên trái (Điểm mới), sau đó bấm chọn 1 thẻ bên phải (Tác động kinh tế) tương ứng để nối.</p>
+            </div>
+            <div class="score-badge" id="score-counter">Đã hoàn thành: 0 / 5</div>
+        </div>
+
+        <div class="columns-header">
+            <div class="col-title">📌 ĐIỂM MỚI (LUẬT DN 2020)</div>
+            <div class="col-title">📈 TÁC ĐỘNG KINH TẾ</div>
+        </div>
+
+        <div class="field-wrapper">
+            <canvas id="lineCanvas"></canvas>
+            
+            <!-- Left Column -->
+            <div class="column" id="left-column"></div>
+
+            <!-- Right Column -->
+            <div class="column" id="right-column"></div>
+        </div>
+
+        <div class="instruction-footer">
+            💡 Mẹo: Chọn 1 ý bên Cột Trái rồi bấm chọn ý phù hợp bên Cột Phải. Nếu sai vẫn giữ nguyên cột trái để chọn tiếp!
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal-card">
+            <div class="modal-icon">💍🎉</div>
+            <h3>GHÉP ĐÔI THÀNH CÔNG!</h3>
+            <p>Đã kết duyên các cặp nội dung Luật Doanh nghiệp 2020 thành một đôi trọn vẹn <33.</p>
+            <button class="modal-btn" onclick="closeModal()">Phần tiếp theo &rarr;</button>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div class="edit-modal" id="editModal">
+        <div class="edit-content">
+            <div class="edit-header">
+                <h3>Chỉnh sửa Nội dung Câu hỏi & Đáp án</h3>
+                <button class="btn" style="padding: 6px 12px; font-size:0.85rem;" onclick="closeEditModal()">✕ Đóng</button>
+            </div>
+            <div class="edit-body" id="editBodyContainer"></div>
+            <div class="edit-footer">
+                <button class="btn" style="background:#8C7A6B;" onclick="resetDefaultData()">Khôi phục mặc định</button>
+                <button class="btn" style="background:#689F38;" onclick="saveEditedData()">Lưu thay đổi</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const defaultPairs = [
+            {
+                id: 1,
+                left: "DNTN chuyển đổi trực tiếp thành công ty cổ phần, TNHH hoặc hợp danh.",
+                right: "Tạo động lực bứt phá kinh tế tư nhân, đóng góp ổn định vào ngân sách nhà nước."
+            },
+            {
+                id: 2,
+                left: "Chữ ký số thay thế con dấu truyền thống.",
+                right: "Tiết kiệm thời gian, chi phí logistics, thúc đẩy kinh tế số."
+            },
+            {
+                id: 3,
+                left: "Hạ ngưỡng quyền cổ đông xuống 5%, bỏ điều kiện nắm giữ 6 tháng.",
+                right: "Tăng quyền giám sát cho cổ đông nhỏ lẻ, thị trường toàn diện hơn."
+            },
+            {
+                id: 4,
+                left: "Bổ sung đối tượng bị cấm thành lập và quản lý doanh nghiệp.",
+                right: "Lọc các đối tượng trục lợi, rửa tiền, củng cố niềm tin cho khách hàng."
+            },
+            {
+                id: 5,
+                left: "Mở rộng định nghĩa Doanh nghiệp Nhà nước, bắt buộc lập Ban Kiểm soát.",
+                right: "Giám sát chặt dòng vốn công, tang tính minh bạch."
+            }
+        ];
+
+        let pairs = JSON.parse(localStorage.getItem('street_game_pairs_v6')) || JSON.parse(JSON.stringify(defaultPairs));
+
+        let shuffledLeft = [];
+        let shuffledRight = [];
+        let selectedLeft = null;
+        let connections = [];
+
+        let audioCtx = null;
+        let isBgmPlaying = true; // Mặc định Bật sẵn
+        let bgmInterval = null;
+
+        function initAudio() {
+            if (!audioCtx) {
+                audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        }
+
+        function playSound(type) {
+            initAudio();
+            if (!audioCtx) return;
+            const now = audioCtx.currentTime;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+
+            if (type === 'click') {
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(400, now);
+                osc.frequency.exponentialRampToValueAtTime(600, now + 0.08);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.08);
+                osc.start(now);
+                osc.stop(now + 0.08);
+            } else if (type === 'correct') {
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(523.25, now);
+                osc.frequency.setValueAtTime(659.25, now + 0.1);
+                osc.frequency.setValueAtTime(783.99, now + 0.2);
+                gain.gain.setValueAtTime(0.2, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.35);
+                osc.start(now);
+                osc.stop(now + 0.35);
+            } else if (type === 'wrong') {
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(180, now);
+                osc.frequency.setValueAtTime(130, now + 0.15);
+                gain.gain.setValueAtTime(0.15, now);
+                gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                osc.start(now);
+                osc.stop(now + 0.25);
+            } else if (type === 'hooray') {
+                const notes = [440, 554.37, 659.25, 880, 1108.73];
+                notes.forEach((freq, i) => {
+                    const oscH = audioCtx.createOscillator();
+                    const gainH = audioCtx.createGain();
+                    oscH.connect(gainH);
+                    gainH.connect(audioCtx.destination);
+                    oscH.type = (i % 2 === 0) ? 'triangle' : 'sawtooth';
+                    oscH.frequency.setValueAtTime(freq, now + i * 0.08);
+                    gainH.gain.setValueAtTime(0.3, now + i * 0.08);
+                    gainH.gain.linearRampToValueAtTime(0.01, now + i * 0.08 + 0.3);
+                    oscH.start(now + i * 0.08);
+                    oscH.stop(now + i * 0.08 + 0.3);
+                });
+            }
+        }
+
+        function toggleBGM() {
+            initAudio();
+            isBgmPlaying = !isBgmPlaying;
+            const btn = document.getElementById('bgm-toggle');
+            if (isBgmPlaying) {
+                btn.innerText = "🎵 Nhạc Nền: Bật";
+                btn.style.background = "#689F38";
+                startLivelyBGM();
+            } else {
+                btn.innerText = "🎵 Nhạc Nền: Tắt";
+                btn.style.background = "#A67C52";
+                stopLivelyBGM();
+            }
+        }
+
+        function startLivelyBGM() {
+            if (bgmInterval) clearInterval(bgmInterval);
+            const chords = [
+                [523.25, 659.25, 783.99], 
+                [440.00, 523.25, 659.25], 
+                [349.23, 440.00, 523.25], 
+                [392.00, 493.88, 587.33]  
+            ];
+            let chordIdx = 0;
+            let noteIdx = 0;
+
+            bgmInterval = setInterval(() => {
+                if (!isBgmPlaying || !audioCtx) return;
+                const now = audioCtx.currentTime;
+                const currentChord = chords[chordIdx];
+                const freq = currentChord[noteIdx];
+
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(freq, now);
+                gain.gain.setValueAtTime(0.06, now);
+                gain.gain.linearRampToValueAtTime(0.001, now + 0.35);
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                osc.start(now);
+                osc.stop(now + 0.35);
+
+                noteIdx++;
+                if (noteIdx >= currentChord.length) {
+                    noteIdx = 0;
+                    chordIdx = (chordIdx + 1) % chords.length;
+                }
+            }, 200);
+        }
+
+        function stopLivelyBGM() {
+            if (bgmInterval) clearInterval(bgmInterval);
+            bgmInterval = null;
+        }
+
+        function initGame() {
+            connections = [];
+            selectedLeft = null;
+            shuffledLeft = [...pairs].sort(() => Math.random() - 0.5);
+            shuffledRight = [...pairs].sort(() => Math.random() - 0.5);
+            renderBoard();
+            updateScore();
+            setTimeout(drawLines, 50);
+        }
+
+        function renderBoard() {
+            const leftCol = document.getElementById('left-column');
+            const rightCol = document.getElementById('right-column');
+            leftCol.innerHTML = '';
+            rightCol.innerHTML = '';
+
+            shuffledLeft.forEach((item, idx) => {
+                const isConnected = connections.some(c => c.leftId === item.id);
+                const isSelected = (selectedLeft === item.id);
+                const card = document.createElement('div');
+                card.className = `card ${isConnected ? 'connected' : ''} ${isSelected ? 'selected' : ''}`;
+                card.dataset.id = item.id;
+                card.dataset.side = 'left';
+                card.innerHTML = `
+                    <div class="card-index">${idx + 1}</div>
+                    <div class="card-text">${item.left}</div>
+                `;
+                card.onclick = () => handleCardClick(card, 'left', item.id);
+                leftCol.appendChild(card);
+            });
+
+            const letters = ['A', 'B', 'C', 'D', 'E'];
+            shuffledRight.forEach((item, idx) => {
+                const isConnected = connections.some(c => c.rightId === item.id);
+                const card = document.createElement('div');
+                card.className = `card ${isConnected ? 'connected' : ''}`;
+                card.dataset.id = item.id;
+                card.dataset.side = 'right';
+                card.innerHTML = `
+                    <div class="card-index">${letters[idx]}</div>
+                    <div class="card-text">${item.right}</div>
+                `;
+                card.onclick = () => handleCardClick(card, 'right', item.id);
+                rightCol.appendChild(card);
+            });
+        }
+
+        function handleCardClick(cardElement, side, id) {
+            if (cardElement.classList.contains('connected')) return;
+            initAudio();
+
+            if (side === 'left') {
+                document.querySelectorAll('#left-column .card').forEach(c => c.classList.remove('selected'));
+                cardElement.classList.add('selected');
+                selectedLeft = id;
+                playSound('click');
+            } else if (side === 'right') {
+                if (selectedLeft === null) {
+                    playSound('click');
+                    return;
+                }
+
+                const rightId = id;
+                if (selectedLeft === rightId) {
+                    playSound('correct');
+                    connections.push({ leftId: selectedLeft, rightId: rightId });
+                    selectedLeft = null;
+                    renderBoard();
+                    drawLines();
+                    updateScore();
+
+                    if (connections.length === pairs.length) {
+                        setTimeout(() => {
+                            playSound('hooray');
+                            triggerConfetti();
+                            document.getElementById('successModal').classList.add('show');
+                        }, 400);
+                    }
+                } else {
+                    playSound('wrong');
+                    cardElement.style.borderColor = '#D9534F';
+                    cardElement.style.background = '#FDEDED';
+                    setTimeout(() => {
+                        cardElement.style.borderColor = '';
+                        cardElement.style.background = '';
+                    }, 400);
+                }
+            }
+        }
+
+        function updateScore() {
+            document.getElementById('score-counter').innerText = `Đã hoàn thành: ${connections.length} / ${pairs.length}`;
+        }
+
+        function drawLines() {
+            const canvas = document.getElementById('lineCanvas');
+            const wrapper = document.querySelector('.field-wrapper');
+            canvas.width = wrapper.clientWidth;
+            canvas.height = wrapper.clientHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            connections.forEach(conn => {
+                const leftCard = document.querySelector(`#left-column .card[data-id="${conn.leftId}"]`);
+                const rightCard = document.querySelector(`#right-column .card[data-id="${conn.rightId}"]`);
+                if (leftCard && rightCard) {
+                    const wrapperRect = wrapper.getBoundingClientRect();
+                    const leftRect = leftCard.getBoundingClientRect();
+                    const rightRect = rightCard.getBoundingClientRect();
+
+                    const x1 = leftRect.right - wrapperRect.left;
+                    const y1 = leftRect.top + leftRect.height / 2 - wrapperRect.top;
+                    const x2 = rightRect.left - wrapperRect.left;
+                    const y2 = rightRect.top + rightRect.height / 2 - wrapperRect.top;
+
+                    ctx.beginPath();
+                    ctx.moveTo(x1, y1);
+                    ctx.bezierCurveTo(x1 + 60, y1, x2 - 60, y2, x2, y2);
+                    ctx.strokeStyle = '#689F38';
+                    ctx.lineWidth = 5;
+                    ctx.lineCap = 'round';
+                    ctx.stroke();
+                }
+            });
+        }
+
+        window.addEventListener('resize', drawLines);
+
+        function closeModal() {
+            document.getElementById('successModal').classList.remove('show');
+        }
+
+        function openEditModal() {
+            const container = document.getElementById('editBodyContainer');
+            container.innerHTML = '';
+            pairs.forEach((p, idx) => {
+                const div = document.createElement('div');
+                div.className = 'edit-pair';
+                div.innerHTML = `
+                    <label>Cặp câu hỏi ${idx + 1}:</label>
+                    <div>
+                        <span style="font-size:0.85rem; color:#8C7A6B; font-weight:700;">Điểm mới (Cột trái):</span>
+                        <textarea data-index="${idx}" data-side="left">${p.left}</textarea>
+                    </div>
+                    <div>
+                        <span style="font-size:0.85rem; color:#8C7A6B; font-weight:700;">Tác động kinh tế (Cột phải):</span>
+                        <textarea data-index="${idx}" data-side="right">${p.right}</textarea>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+            document.getElementById('editModal').classList.add('show');
+        }
+
+        function closeEditModal() {
+            document.getElementById('editModal').classList.remove('show');
+        }
+
+        function saveEditedData() {
+            const textareas = document.querySelectorAll('#editBodyContainer textarea');
+            textareas.forEach(ta => {
+                const idx = ta.dataset.index;
+                const side = ta.dataset.side;
+                pairs[idx][side] = ta.value.trim();
+            });
+            localStorage.setItem('street_game_pairs_v6', JSON.stringify(pairs));
+            closeEditModal();
+            initGame();
+        }
+
+        function resetDefaultData() {
+            localStorage.removeItem('street_game_pairs_v6');
+            pairs = JSON.parse(JSON.stringify(defaultPairs));
+            closeEditModal();
+            initGame();
+        }
+
+        function triggerConfetti() {
+            const canvas = document.getElementById('confetti-canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+
+            let particles = [];
+            const colors = ['#E53935', '#689F38', '#FB8C00', '#1E88E5', '#8E24AA', '#FDD835'];
+
+            for (let i = 0; i < 180; i++) {
+                particles.push({
+                    x: canvas.width / 2,
+                    y: canvas.height / 2,
+                    vx: (Math.random() - 0.5) * 18,
+                    vy: (Math.random() - 0.7) * 18,
+                    size: Math.random() * 9 + 4,
+                    color: colors[Math.floor(Math.random() * colors.length)],
+                    life: 120
+                });
+            }
+
+            function animateConfetti() {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                particles.forEach((p, index) => {
+                    p.x += p.vx;
+                    p.y += p.vy;
+                    p.vy += 0.4;
+                    p.life--;
+                    ctx.fillStyle = p.color;
+                    ctx.beginPath();
+                    ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    if (p.life <= 0) {
+                        particles.splice(index, 1);
+                    }
+                });
+
+                if (particles.length > 0) {
+                    requestAnimationFrame(animateConfetti);
+                } else {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                }
+            }
+            animateConfetti();
+        }
+
+        window.onload = () => {
+            initGame();
+            document.getElementById('bgm-toggle').onclick = toggleBGM;
+            // Tự động kích hoạt nhạc nền khi có tương tác đầu tiên hoặc khi load
+            setTimeout(() => {
+                if (isBgmPlaying) {
+                    initAudio();
+                    startLivelyBGM();
+                }
+            }, 500);
+        };
+    </script>
+</body>
+</html>
